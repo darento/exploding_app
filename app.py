@@ -90,8 +90,8 @@ def calculate_weighted_avg_score(players_data, max_num_matches):
             data["Weighted_Avg_Score"] = (
                 data["Weighted_Score"]
                 / data["players_in_match"]
-                # * data["Matches_Played"]
-                # / max_num_matches
+                * data["Matches_Played"]
+                / max_num_matches
             )
         else:
             data["Weighted_Avg_Score"] = 0
