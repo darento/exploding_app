@@ -5,15 +5,35 @@ import matplotlib.pyplot as plt
 MAX_SCORE = 10
 MIN_SCORE = 1
 
+
 def read_excel_file(uploaded_file):
     df = pd.read_excel(uploaded_file)
     df.columns = [
         "Nombre",
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-        "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
     ]
     df = df.dropna(subset=["Nombre"])
     return df
+
 
 def process_player_data(df):
     players_data = {}
@@ -30,6 +50,7 @@ def process_player_data(df):
             "Normalized_Scores": [0] * 20,
         }
     return players_data
+
 
 def normalize_scores(players_data):
     for match_idx in range(1, 21):
@@ -49,12 +70,19 @@ def normalize_scores(players_data):
                         ) * (MAX_SCORE - MIN_SCORE) + MIN_SCORE
                     else:
                         normalized_score = MIN_SCORE
-                    players_data[player]["Normalized_Scores"][match_idx - 1] = normalized_score
+                    players_data[player]["Normalized_Scores"][
+                        match_idx - 1
+                    ] = normalized_score
                     players_in_match = sum(
-                        1 for p in players_data if players_data[p]["Scores"][match_idx - 1] > 0
+                        1
+                        for p in players_data
+                        if players_data[p]["Scores"][match_idx - 1] > 0
                     )
-                    players_data[player]["Weighted_Score"] += normalized_score * players_in_match
+                    players_data[player]["Weighted_Score"] += (
+                        normalized_score * players_in_match
+                    )
                     players_data[player]["players_in_match"] += players_in_match
+
 
 def calculate_weighted_avg_score(players_data, max_num_matches):
     for player, data in players_data.items():
@@ -62,11 +90,12 @@ def calculate_weighted_avg_score(players_data, max_num_matches):
             data["Weighted_Avg_Score"] = (
                 data["Weighted_Score"]
                 / data["players_in_match"]
-                * data["Matches_Played"]
-                / max_num_matches
+                # * data["Matches_Played"]
+                # / max_num_matches
             )
         else:
             data["Weighted_Avg_Score"] = 0
+
 
 def plot_weighted_avg_scores(ax, players_data):
     names = list(players_data.keys())
@@ -76,6 +105,7 @@ def plot_weighted_avg_scores(ax, players_data):
     )
     bars = ax.bar(names, avg_scores, color="lightblue")
     return bars, names, avg_scores
+
 
 def highlight_players(ax, players_data, max_num_matches):
     for player, data in players_data.items():
@@ -91,8 +121,12 @@ def highlight_players(ax, players_data, max_num_matches):
             )
     winner = max(players_data, key=lambda p: players_data[p]["Weighted_Avg_Score"])
     ax.bar(
-        winner, players_data[winner]["Weighted_Avg_Score"], color="green", label="Winner"
+        winner,
+        players_data[winner]["Weighted_Avg_Score"],
+        color="green",
+        label="Winner",
     )
+
 
 def add_labels(ax, bars, avg_scores):
     for bar, score in zip(bars, avg_scores):
@@ -103,6 +137,7 @@ def add_labels(ax, bars, avg_scores):
             ha="center",
             va="bottom",
         )
+
 
 # Main script
 st.title("Exploding Kittens League Performance Analysis")
@@ -119,17 +154,17 @@ if uploaded_file is not None:
     )
     normalize_scores(players_data)
     calculate_weighted_avg_score(players_data, max_num_matches)
-    
+
     st.subheader("Weighted Average Scores per Player")
     fig, ax = plt.subplots(figsize=(10, 6))
     bars, names, avg_scores = plot_weighted_avg_scores(ax, players_data)
     highlight_players(ax, players_data, max_num_matches)
     add_labels(ax, bars, avg_scores)
-    
+
     ax.set_xlabel("Player")
     ax.set_ylabel("Weighted Average Score")
     ax.set_title("Weighted Average Scores per Player (Winner Highlighted)")
     ax.set_xticklabels(names, rotation=45)
     ax.legend()
-    
+
     st.pyplot(fig)
