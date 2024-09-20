@@ -84,7 +84,8 @@ def normalize_scores(players_data):
                     players_data[player]["players_in_match"] += players_in_match
 
 
-def calculate_weighted_avg_score(players_data, max_num_matches):
+def calculate_weighted_avg_score(players_data, max_num_matches, magic_factor_flag=True):
+
     for player, data in players_data.items():
         if data["players_in_match"] > 0:
             data["Weighted_Avg_Score"] = (
@@ -92,6 +93,8 @@ def calculate_weighted_avg_score(players_data, max_num_matches):
                 / data["players_in_match"]
                 * data["Matches_Played"]
                 / max_num_matches
+                if magic_factor_flag
+                else data["Weighted_Score"] / data["players_in_match"]
             )
         else:
             data["Weighted_Avg_Score"] = 0
@@ -153,9 +156,28 @@ if uploaded_file is not None:
         [players_data[player]["Matches_Played"] for player in players_data]
     )
     normalize_scores(players_data)
+
+    # With magic factor
     calculate_weighted_avg_score(players_data, max_num_matches)
 
-    st.subheader("Weighted Average Scores per Player")
+    st.subheader("Weighted Average Scores per Player (With Magic Factor)")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    bars, names, avg_scores = plot_weighted_avg_scores(ax, players_data)
+    highlight_players(ax, players_data, max_num_matches)
+    add_labels(ax, bars, avg_scores)
+
+    ax.set_xlabel("Player")
+    ax.set_ylabel("Weighted Average Score")
+    ax.set_title("Weighted Average Scores per Player (Winner Highlighted)")
+    ax.set_xticklabels(names, rotation=45)
+    ax.legend()
+
+    st.pyplot(fig)
+
+    # Without magic factor
+    calculate_weighted_avg_score(players_data, max_num_matches, magic_factor_flag=False)
+
+    st.subheader("Weighted Average Scores per Player (Without Magic Factor)")
     fig, ax = plt.subplots(figsize=(10, 6))
     bars, names, avg_scores = plot_weighted_avg_scores(ax, players_data)
     highlight_players(ax, players_data, max_num_matches)
