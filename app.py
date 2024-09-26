@@ -30,6 +30,8 @@ def read_excel_file(uploaded_file):
         "18",
         "19",
         "20",
+        "21",
+        "22",
     ]
     df = df.dropna(subset=["Nombre"])
     return df
