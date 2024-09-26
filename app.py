@@ -50,7 +50,7 @@ def process_player_data(df):
             "Matches_Played": sum([1 for score in scores if score > 0]),
             "Weighted_Score": 0,
             "players_in_match": 0,
-            "Normalized_Scores": [0] * 20,
+            "Normalized_Scores": [0] * 23,
         }
     return players_data
 
