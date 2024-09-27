@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 MAX_SCORE = 10
 MIN_SCORE = 1
+NUM_TOT_MATCHES = 23
 
 
 def read_excel_file(uploaded_file):
@@ -50,13 +51,13 @@ def process_player_data(df):
             "Matches_Played": sum([1 for score in scores if score > 0]),
             "Weighted_Score": 0,
             "players_in_match": 0,
-            "Normalized_Scores": [0] * 23,
+            "Normalized_Scores": [0] * NUM_TOT_MATCHES,
         }
     return players_data
 
 
 def normalize_scores(players_data):
-    for match_idx in range(1, 21):
+    for match_idx in range(1, NUM_TOT_MATCHES):
         match_scores = [
             players_data[player]["Scores"][match_idx - 1] for player in players_data
         ]
@@ -177,7 +178,8 @@ if uploaded_file is not None:
 
     for i in range(3):
         calculate_weighted_avg_score(players_data, max_num_matches, magic_factor_flag=i)
-
+        print(f"Magic Factor: {i}")
+        print(players_data["Álvaro"])
         st.subheader(titles[i])
         fig, ax = plt.subplots(figsize=(10, 6))
         bars, names, avg_scores = plot_weighted_avg_scores(ax, players_data)
