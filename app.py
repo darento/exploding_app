@@ -50,23 +50,24 @@ def process_player_data(df):
             "Scores": scores,
             "Matches_Played": sum([1 for score in scores if score > 0]),
             "Weighted_Score": 0,
-            "players_in_match": 0,
             "Normalized_Scores": [0] * NUM_TOT_MATCHES,
         }
     return players_data
 
 
 def normalize_scores(players_data):
-    for match_idx in range(1, NUM_TOT_MATCHES):
+    for match_idx in range(0, NUM_TOT_MATCHES):
         match_scores = [
-            players_data[player]["Scores"][match_idx - 1] for player in players_data
+            players_data[player]["Scores"][match_idx] for player in players_data
         ]
         valid_scores = [score for score in match_scores if score > 0]
+        print(f"Match {match_idx + 1}: {valid_scores}")
         if valid_scores:
+            print(f"Valid Scores: {valid_scores}")
             min_score = min(valid_scores)
             max_score = max(valid_scores)
             for player in players_data:
-                raw_score = players_data[player]["Scores"][match_idx - 1]
+                raw_score = players_data[player]["Scores"][match_idx]
                 if raw_score > 0:
                     if max_score - min_score > 0:
                         normalized_score = (
@@ -75,42 +76,35 @@ def normalize_scores(players_data):
                     else:
                         normalized_score = MIN_SCORE
                     players_data[player]["Normalized_Scores"][
-                        match_idx - 1
+                        match_idx
                     ] = normalized_score
                     players_in_match = sum(
                         1
                         for p in players_data
-                        if players_data[p]["Scores"][match_idx - 1] > 0
+                        if players_data[p]["Scores"][match_idx] > 0
                     )
                     players_data[player]["Weighted_Score"] += (
-                        normalized_score * players_in_match
+                        normalized_score * players_in_match / MAX_SCORE
                     )
-                    players_data[player]["players_in_match"] += players_in_match
 
 
 def calculate_weighted_avg_score(players_data, max_num_matches, magic_factor_flag=0):
 
     for player, data in players_data.items():
-        if data["players_in_match"] > 0:
-            if magic_factor_flag == 0:
-                data["Weighted_Avg_Score"] = (
-                    data["Weighted_Score"]
-                    / data["players_in_match"]
-                    * data["Matches_Played"]
-                    / max_num_matches
-                )
-            elif magic_factor_flag == 1:
-                data["Weighted_Avg_Score"] = (
-                    data["Weighted_Score"] / data["players_in_match"]
-                )
-            elif magic_factor_flag == 2:
-                data["Weighted_Avg_Score"] = (
-                    data["Weighted_Score"]
-                    / data["players_in_match"]
-                    * (data["Matches_Played"] / max_num_matches) ** (1 / 2)
-                )
-        else:
-            data["Weighted_Avg_Score"] = 0
+        if magic_factor_flag == 0:
+            data["Weighted_Avg_Score"] = (
+                data["Weighted_Score"]
+                / data["Matches_Played"]
+                * (data["Matches_Played"] / max_num_matches)
+            )
+        elif magic_factor_flag == 1:
+            data["Weighted_Avg_Score"] = data["Weighted_Score"] / data["Matches_Played"]
+        elif magic_factor_flag == 2:
+            data["Weighted_Avg_Score"] = (
+                data["Weighted_Score"]
+                / data["Matches_Played"]
+                * (data["Matches_Played"] / max_num_matches) ** (1 / 2)
+            )
 
 
 def plot_weighted_avg_scores(ax, players_data):
