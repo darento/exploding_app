@@ -164,10 +164,15 @@ if uploaded_file is not None:
     )
     normalize_scores(players_data)
 
+    player_summation_score = {}
+    for player, data in players_data.items():
+        player_summation_score[player] = sum(data["Scores"])
+
     titles = [
         "Weighted Average Scores per Player (With Magic Factor)",
         "Weighted Average Scores per Player (Without Magic Factor)",
         "Weighted Average Scores per Player (With Magic Factor ^ 1/2)",
+        "Summation Score per Player (Total Score)",
     ]
 
     for i in range(3):
@@ -187,3 +192,17 @@ if uploaded_file is not None:
         ax.legend()
 
         st.pyplot(fig)
+
+    st.subheader(titles[3])
+    fig, ax = plt.subplots(figsize=(10, 6))
+    bars = ax.bar(
+        player_summation_score.keys(),
+        player_summation_score.values(),
+        color="lightblue",
+    )
+    ax.set_xlabel("Player")
+    ax.set_ylabel("Summation Score")
+    ax.set_title("Summation Score per Player")
+    ax.set_xticklabels(player_summation_score.keys(), rotation=45)
+    add_labels(ax, bars, player_summation_score.values())
+    st.pyplot(fig)
