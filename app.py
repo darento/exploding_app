@@ -167,7 +167,7 @@ if uploaded_file is not None:
     player_summation_score = {}
     for player, data in players_data.items():
         player_summation_score[player] = sum(data["Scores"])
-        print(f"{player}: {player_summation_score[player]}")
+        print(f"{player}: {data}")
 
     titles = [
         "Weighted Average Scores per Player (With Magic Factor)",
