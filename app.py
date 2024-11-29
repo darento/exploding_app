@@ -174,13 +174,6 @@ if uploaded_file is not None:
     )
     normalize_scores(players_data)
 
-    player_summation_score = {}
-    for player, data in players_data.items():
-        # sum the scores taking into account that there are nan values
-        player_summation_score[player] = sum(
-            [score for score in data["Scores"] if score > 0]
-        )
-
     titles = [
         "Weighted Average Scores per Player (With Magic Factor)",
         "Weighted Average Scores per Player (Without Magic Factor)",
@@ -208,7 +201,7 @@ if uploaded_file is not None:
 
     st.subheader(titles[3])
     fig, ax = plt.subplots(figsize=(10, 6))
-    bars, names, summation_scores = plot_summation_scores(ax, player_summation_score)
+    bars, names, summation_scores = plot_summation_scores(ax, players_data)
     highlight_players(ax, players_data, max_num_matches)
     add_labels(ax, bars, summation_scores)
 
