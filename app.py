@@ -166,8 +166,10 @@ if uploaded_file is not None:
 
     player_summation_score = {}
     for player, data in players_data.items():
-        player_summation_score[player] = sum(data["Scores"])
-        print(f"{player}: {data}")
+        # sum the scores taking into account that there are nan values
+        player_summation_score[player] = sum(
+            [score for score in data["Scores"] if score > 0]
+        )
 
     titles = [
         "Weighted Average Scores per Player (With Magic Factor)",
