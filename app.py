@@ -119,7 +119,15 @@ def plot_weighted_avg_scores(ax, players_data):
 
 def plot_summation_scores(ax, players_data):
     names = list(players_data.keys())
-    summation_scores = [players_data[player]["Scores"] for player in names]
+    summation_scores = [
+        sum(
+            score
+            for score in players_data[player]["Scores"]
+            if not pd.isna(score) and score > 0
+        )
+        for player in names
+    ]
+
     names, summation_scores = zip(
         *sorted(zip(names, summation_scores), key=lambda x: x[1], reverse=True)
     )
@@ -143,6 +151,30 @@ def highlight_players(ax, players_data, max_num_matches):
     ax.bar(
         winner,
         players_data[winner]["Weighted_Avg_Score"],
+        color="green",
+        label="Winner",
+    )
+
+
+def highlight_players_summation(
+    ax, players_data, max_num_matches, names, summation_scores
+):
+    for player, data in players_data.items():
+        if data["Matches_Played"] < 0.6 * max_num_matches:
+            ax.bar(
+                player,
+                summation_scores[names.index(player)],
+                color="gray",
+                alpha=0.3,
+                hatch="//",
+                edgecolor="black",
+                linewidth=0,
+            )
+
+    winner = names[summation_scores.index(max(summation_scores))]
+    ax.bar(
+        winner,
+        max(summation_scores),
         color="green",
         label="Winner",
     )
@@ -202,7 +234,9 @@ if uploaded_file is not None:
     st.subheader(titles[3])
     fig, ax = plt.subplots(figsize=(10, 6))
     bars, names, summation_scores = plot_summation_scores(ax, players_data)
-    highlight_players(ax, players_data, max_num_matches)
+    highlight_players_summation(
+        ax, players_data, max_num_matches, names, summation_scores
+    )
     add_labels(ax, bars, summation_scores)
 
     ax.set_xlabel("Player")
