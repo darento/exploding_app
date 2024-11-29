@@ -117,6 +117,16 @@ def plot_weighted_avg_scores(ax, players_data):
     return bars, names, avg_scores
 
 
+def plot_summation_scores(ax, players_data):
+    names = list(players_data.keys())
+    summation_scores = [players_data[player]["Scores"] for player in names]
+    names, summation_scores = zip(
+        *sorted(zip(names, summation_scores), key=lambda x: x[1], reverse=True)
+    )
+    bars = ax.bar(names, summation_scores, color="lightblue")
+    return bars, names, summation_scores
+
+
 def highlight_players(ax, players_data, max_num_matches):
     for player, data in players_data.items():
         if data["Matches_Played"] < 0.6 * max_num_matches:
@@ -198,14 +208,14 @@ if uploaded_file is not None:
 
     st.subheader(titles[3])
     fig, ax = plt.subplots(figsize=(10, 6))
-    bars = ax.bar(
-        player_summation_score.keys(),
-        player_summation_score.values(),
-        color="lightblue",
-    )
+    bars, names, summation_scores = plot_summation_scores(ax, player_summation_score)
+    highlight_players(ax, players_data, max_num_matches)
+    add_labels(ax, bars, summation_scores)
+
     ax.set_xlabel("Player")
     ax.set_ylabel("Summation Score")
     ax.set_title("Summation Score per Player")
-    ax.set_xticklabels(player_summation_score.keys(), rotation=45)
-    add_labels(ax, bars, player_summation_score.values())
+    ax.set_xticklabels(names, rotation=45)
+    ax.legend()
+
     st.pyplot(fig)
